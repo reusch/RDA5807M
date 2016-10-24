@@ -159,7 +159,7 @@ bool RDA5807M::begin() {
     registers[RDA5807M_REG_SNDINT] |= 0x0080;
         
     // 50µs deemphasis
-//    registers[RDA5807M_REG_INTL1] |= RDA5807M_REG_INTL1_DEEMPH;
+    registers[RDA5807M_REG_INTL1] |= RDA5807M_REG_INTL1_DEEMPH;
 
     // softblend, min. freq 65MHz, default softblend threshold (32dB)
     registers[RDA5807M_REG_FRSB] |= RDA5807M_REG_FRSB_SOFTBLEND;
@@ -517,8 +517,8 @@ void RDA5807M::setFrequencyOffsetDirect(uint16_t val) {
   registers[RDA5807M_REG_FREQDIRECT] |= val & RDA5807M_REG_FREQDIRECT_FREQ;
   writeRegister(RDA5807M_REG_FREQDIRECT);
 }
-uint8_t RDA5807M::getFrequencyOffsetDirect() {
-  return ((registers[RDA5807M_REG_FREQDIRECT] & RDA5807M_REG_FREQDIRECT_FREQ)) & 0xFF;
+uint16_t RDA5807M::getFrequencyOffsetDirect() {
+  return ((registers[RDA5807M_REG_FREQDIRECT] & RDA5807M_REG_FREQDIRECT_FREQ));
 }
 
 // get channel by frequency in kHz
@@ -558,7 +558,7 @@ uint16_t RDA5807M::getChannelByFrequency(unsigned long val) {
 // get frequency by channel in kHz
 unsigned long RDA5807M::getFrequencyByChannel(uint16_t val) {
   unsigned long result = 0;
-    switch(getRadioBand()) {
+  switch(getRadioBand()) {
     case RDA5807M_REG_CHAN_BAND_65_76:
       result = 65000;
       if(getLowFreqencyFiftyEnabled()) {
@@ -593,12 +593,10 @@ unsigned long RDA5807M::getFrequencyByChannel(uint16_t val) {
 // get actual* frequency tuned to (*when in channel mode)
 unsigned long RDA5807M::getTunedFrequency() {
   if(getFrequencyOffsetDirectEnabled()) { //TODO: try to get the actual value via status registers
-    Serial.println("set registers");
-    return getFrequencyByChannel(getFrequencyOffsetDirect());
+    return getFrequencyByChannel(0)+getFrequencyOffsetDirect();
   }
   else {
     readRegisters();
-    Serial.println("status registers");
     return getFrequencyByChannel(
         registers[RDA5807M_REG_STATUS1] & RDA5807M_REG_STATUS1_CHAN
       );

@@ -92,7 +92,7 @@ class RDA5807M {
     void setSoftblendThreshold(uint8_t val);
     uint8_t getSoftblendThreshold();
     void setFrequencyOffsetDirect(uint16_t val);
-    uint8_t getFrequencyOffsetDirect();
+    uint16_t getFrequencyOffsetDirect();
     uint16_t getChannelByFrequency(unsigned long val);
     unsigned long getFrequencyByChannel(uint16_t val);
     unsigned long getTunedFrequency();
